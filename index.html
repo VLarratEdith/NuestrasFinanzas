@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Financiero Familiar - Multiusuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- El resto de tu código HTML y JS va aquí, igual al prompt -->
+</head>
+<body>
+    <!-- El resto de tu código HTML y JS va aquí, igual al prompt -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Financiero Familiar - Multiusuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #17a2b8;
+            --light-bg: #ecf0f1;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background-color: var(--primary-color) !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,.08);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 25px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-pdf {
+            background-color: var(--danger-color);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 25px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .ticket-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .ticket-preview:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.income {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stat-card.expense {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .stat-card.balance {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card.savings {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        }
+
+        .stat-card.debt {
+            background: linear-gradient(135deg, #b92b27 0%, #1565c0 100%);
+        }
+
+        .stat-card.financed {
+            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+        }
+
+        .category-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--warning-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .expense-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,.05);
+            transition: all 0.3s ease;
+        }
+
+        .expense-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,.1);
+        }
+
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            border-radius: 15px;
+            transition: width 0.6s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--secondary-color);
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--secondary-color);
+            background-color: #f8f9fa;
+        }
+
+        .upload-area.dragover {
+            border-color: var(--secondary-color);
+            background-color: #e3f2fd;
+        }
+
+        .nav-link.active {
+            background-color: rgba(255,255,255,0.1) !important;
+            border-radius: 5px;
+        }
+
+        .badge-custom {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 10px;
+        }
+
+        .debt-progress {
+            height: 20px;
+            border-radius: 10px;
+            background-color: #e9ecef;
+            margin-top: 5px;
+        }
+
+        .installment-badge {
+            background-color: var(--info-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        /* Estilos para impresión */
+        @media print {
+            body {
+                background-color: white;
+            }
+            
+            .navbar, .btn-pdf, .nav-link, .user-menu {
+                display: none !important;
+            }
+            
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+            
+            .stat-card {
+                background: #f8f9fa !important;
+                color: #333 !important;
+            }
+            
+            #report-section {
+                display: block !important;
+            }
+            
+            .content-section:not(#report-section) {
+                display: none !important;
+            }
+        }
+
+        /* Login/Register styles */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <!-- Auth Container (shown when not logged in) -->
+    <div id="authContainer" class="auth-container" style="display: none;">
+        <div class="auth-card">
+            <div class="text-center mb-4">
+                <i class="bi bi-wallet2" style="font-size: 4rem; color: var(--primary-color);"></i>
+                <h2 class="mt-3">Control Financiero Familiar</h2>
+                <p class="text-muted">Gestiona tus finanzas de manera inteligente</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="loginEmail" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                    <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                </button>
+            </form>
+
+            <hr>
+
+            <!-- Register Form -->
+            <h5 class="text-center mb-3">¿Nuevo usuario?</h5>
+            <form id="registerForm">
+                <div class="mb-3">
+                    <label class="form-label">Nombre Completo</label>
+                    <input type="text" class="form-control" id="registerName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="registerEmail" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="registerPassword" required minlength="6">
+                    <div class="form-text">Mínimo 6 caracteres</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" id="registerPassword2" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="bi bi-person-plus"></i> Registrarse
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App (shown when logged in) -->
+    <div id="mainApp">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="bi bi-wallet2"></i> Control Financiero Familiar
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('income')">
+                                <i class="bi bi-cash-coin"></i> Ingresos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('expenses')">
+                                <i class="bi bi-cart3"></i> Gastos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('savings')">
+                                <i class="bi bi-piggy-bank"></i> Ahorros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('debts')">
+                                <i class="bi bi-file-earmark-text"></i> Deudas Largo Plazo
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('financed')">
+                                <i class="bi bi-credit-card"></i> Gastos Financiados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="showSection('report')">
+                                <i class="bi bi-graph-up"></i> Informe
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="user-menu">
+                        <button class="btn btn-outline-light" onclick="toggleUserDropdown()">
+                            <i class="bi bi-person-circle"></i> <span id="userName">Usuario</span>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a class="dropdown-item" href="#" onclick="showProfile()">
+                                <i class="bi bi-person"></i> Mi Perfil
+                            </a>
+                            <a class="dropdown-item" href="#" onclick="logout()">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container mt-4">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="content-section">
+                <h2 class="section-title">Resumen Financiero</h2>
+                
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card income fade-in">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Ingresos Mensuales</h6>
+                                    <h3 id="total-income">€0.00</h3>
+                                </div>
+                                <i class="bi bi-arrow-up-circle-fill" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card expense fade-in">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Gastos Mensuales</h6>
+                                    <h3 id="total-expenses">€0.00</h3>
+                                </div>
+                                <i class="bi bi-arrow-down-circle-fill" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card balance fade-in">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Balance Mensual</h6>
+                                    <h3 id="balance">€0.00</h3>
+                                </div>
+                                <i class="bi bi-wallet2" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card savings fade-in">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Ahorros Totales</h6>
+                                    <h3 id="total-savings">€0.00</h3>
+                                </div>
+                                <i class="bi bi-piggy-bank-fill" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Row Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="stat-card debt fade-in">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Deudas Largo Plazo</h6>
+                                    <h3 id="total-debts">€0.00</h3>
+                                    <small>Cuota mensual: €<span id="monthly-debt-payment">0.00</span></small>
+                                </div>
+                                <i class="bi bi-file-earmark-text-fill" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card financed fade-in">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Gastos Financiados</h6>
+                                    <h3 id="total-financed">€0.00</h3>
+                                    <small>Cuota mensual: €<span id="monthly-financed-payment">0.00</span></small>
+                                </div>
+                                <i class="bi bi-credit-card-fill" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card fade-in">
+                            <div class="card-body">
+                                <h5 class="card-title">Gastos por Categoría</h5>
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card fade-in">
+                            <div class="card-body">
+                                <h5 class="card-title">Distribución Financiera</h5>
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card fade-in">
+                            <div class="card-body">
+                                <h5 class="card-title">Transacciones Recientes</h5>
+                                <div id="recent-transactions-list">
+                                    <p class="text-muted">No hay transacciones registradas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Income Section -->
+            <div id="income-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Gestión de Ingresos</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Registrar Ingresos Mensuales</h5>
+                                <form id="income-form">
+                                    <div class="mb-3">
+                                        <label for="income-amount" class="form-label">Monto Total (€)</label>
+                                        <input type="number" class="form-control" id="income-amount" step="0.01" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="income-source" class="form-label">Fuente Principal</label>
+                                        <select class="form-select" id="income-source" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="salario">Salario</option>
+                                            <option value="negocio">Negocio Propio</option>
+                                            <option value="inversiones">Inversiones</option>
+                                            <option value="alquiler">Alquiler</option>
+                                            <option value="otros">Otros</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="income-month" class="form-label">Mes</label>
+                                        <select class="form-select" id="income-month" required>
+                                            <option value="">Seleccionar mes...</option>
+                                            <option value="enero">Enero</option>
+                                            <option value="febrero">Febrero</option>
+                                            <option value="marzo">Marzo</option>
+                                            <option value="abril">Abril</option>
+                                            <option value="mayo">Mayo</option>
+                                            <option value="junio">Junio</option>
+                                            <option value="julio">Julio</option>
+                                            <option value="agosto">Agosto</option>
+                                            <option value="septiembre">Septiembre</option>
+                                            <option value="octubre">Octubre</option>
+                                            <option value="noviembre">Noviembre</option>
+                                            <option value="diciembre">Diciembre</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Guardar Ingresos
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Ingresos Registrados</h5>
+                                <div id="income-list">
+                                    <p class="text-muted">No hay ingresos registrados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses Section -->
+            <div id="expenses-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Gestión de Gastos</h2>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Registrar Nuevo Gasto</h5>
+                                <form id="expense-form">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="expense-amount" class="form-label">Monto (€)</label>
+                                                <input type="number" class="form-control" id="expense-amount" step="0.01" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="expense-category" class="form-label">Categoría</label>
+                                                <select class="form-select" id="expense-category" required>
+                                                    <option value="">Seleccionar...</option>
+                                                    <option value="alimentacion">Alimentación</option>
+                                                    <option value="transporte">Transporte</option>
+                                                    <option value="vivienda">Vivienda</option>
+                                                    <option value="servicios">Servicios</option>
+                                                    <option value="salud">Salud</option>
+                                                    <option value="educacion">Educación</option>
+                                                    <option value="ocio">Ocio y Entretenimiento</option>
+                                                    <option value="ropa">Ropa y Calzado</option>
+                                                    <option value="otros">Otros</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="expense-description" class="form-label">Descripción</label>
+                                        <input type="text" class="form-control" id="expense-description" placeholder="Ej: Supermercado Mercadona" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="expense-date" class="form-label">Fecha</label>
+                                        <input type="date" class="form-control" id="expense-date" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Foto del Ticket</label>
+                                        <div class="upload-area" id="upload-area">
+                                            <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #ccc;"></i>
+                                            <p class="mt-2">Haz clic o arrastra una imagen aquí</p>
+                                            <input type="file" id="ticket-image" accept="image/*" style="display: none;">
+                                        </div>
+                                        <div id="image-preview" class="mt-3"></div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle"></i> Agregar Gasto
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Categorías de Gastos</h5>
+                                <div id="category-summary">
+                                    <p class="text-muted">No hay gastos registrados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Section -->
+            <div id="savings-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Gestión de Ahorros</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Registrar Ahorro</h5>
+                                <form id="savings-form">
+                                    <div class="mb-3">
+                                        <label for="savings-amount" class="form-label">Monto (€)</label>
+                                        <input type="number" class="form-control" id="savings-amount" step="0.01" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="savings-description" class="form-label">Descripción</label>
+                                        <input type="text" class="form-control" id="savings-description" placeholder="Ej: Cuenta de ahorro, Inversión en fondos, etc." required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="savings-type" class="form-label">Tipo de Ahorro</label>
+                                        <select class="form-select" id="savings-type" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="cuenta_ahorro">Cuenta de Ahorro</option>
+                                            <option value="fondo_inversion">Fondo de Inversión</option>
+                                            <option value="plazo_fijo">Plazo Fijo</option>
+                                            <option value="acciones">Acciones</option>
+                                            <option value="criptomonedas">Criptomonedas</option>
+                                            <option value="otros">Otros</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="savings-date" class="form-label">Fecha</label>
+                                        <input type="date" class="form-control" id="savings-date" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-piggy-bank"></i> Guardar Ahorro
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Ahorros Registrados</h5>
+                                <div id="savings-list">
+                                    <p class="text-muted">No hay ahorros registrados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debts Section -->
+            <div id="debts-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Deudas no Exigibles en Corto Plazo</h2>
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Registrar Nueva Deuda</h5>
+                                <form id="debt-form">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="debt-amount" class="form-label">Monto Total (€)</label>
+                                                <input type="number" class="form-control" id="debt-amount" step="0.01" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="debt-monthly" class="form-label">Cuota Mensual (€)</label>
+                                                <input type="number" class="form-control" id="debt-monthly" step="0.01" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="debt-description" class="form-label">Descripción</label>
+                                        <input type="text" class="form-control" id="debt-description" placeholder="Ej: Hipoteca casa, Préstamo coche, etc." required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="debt-creditor" class="form-label">Acreedor</label>
+                                        <input type="text" class="form-control" id="debt-creditor" placeholder="Ej: Banco Santander, etc." required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="debt-start" class="form-label">Fecha Inicio</label>
+                                                <input type="date" class="form-control" id="debt-start" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="debt-end" class="form-label">Fecha Fin</label>
+                                                <input type="date" class="form-control" id="debt-end" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-file-earmark-text"></i> Guardar Deuda
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Deudas Registradas</h5>
+                                <div id="debts-list">
+                                    <p class="text-muted">No hay deudas registradas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financed Expenses Section -->
+            <div id="financed-section" class="content-section" style="display: none;">
+                <h2 class="section-title">Gastos Financiados con Tarjeta</h2>
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Registrar Gasto Financiado</h5>
+                                <form id="financed-form">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="financed-amount" class="form-label">Monto Total (€)</label>
+                                                <input type="number" class="form-control" id="financed-amount" step="0.01" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="financed-monthly" class="form-label">Cuota Mensual (€)</label>
+                                                <input type="number" class="form-control" id="financed-monthly" step="0.01" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="financed-description" class="form-label">Descripción</label>
+                                        <input type="text" class="form-control" id="financed-description" placeholder="Ej: Televisión nueva, Ordenador, etc." required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="financed-card" class="form-label">Tarjeta</label>
+                                        <select class="form-select" id="financed-card" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="visa">Visa</option>
+                                            <option value="mastercard">Mastercard</option>
+                                            <option value="amex">American Express</option>
+                                            <option value="otra">Otra</option>
+                                        </select>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="financed-total" class="form-label">Total Cuotas</label>
+                                                <input type="number" class="form-control" id="financed-total" min="1" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="financed-current" class="form-label">Cuota Actual</label>
+                                                <input type="number" class="form-control" id="financed-current" min="1" value="1" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="financed-date" class="form-label">Fecha de Compra</label>
+                                        <input type="date" class="form-control" id="financed-date" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-credit-card"></i> Guardar Gasto Financiado
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Gastos Financiados</h5>
+                                <div id="financed-list">
+                                    <p class="text-muted">No hay gastos financiados registrados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Section -->
+            <div id="report-section" class="content-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="section-title mb-0">Informe Financiero Completo</h2>
+                    <button type="button" class="btn-pdf" onclick="downloadPDF()">
+                        <i class="bi bi-file-earmark-pdf"></i> Descargar Informe PDF
+                    </button>
+                </div>
+                
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="bi bi-piggy-bank category-icon text-success"></i>
+                                <h5>Tasa de Ahorro</h5>
+                                <h3 class="text-success" id="savings-rate">0%</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="bi bi-shield-exclamation category-icon text-warning"></i>
+                                <h5>Ratio Deuda/Ingreso</h5>
+                                <h3 class="text-warning" id="debt-ratio">0%</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="bi bi-credit-card category-icon text-info"></i>
+                                <h5>Endeudamiento Tarjeta</h5>
+                                <h3 class="text-info" id="card-debt-ratio">0%</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="bi bi-graph-up category-icon text-primary"></i>
+                                <h5>Salud Financiera</h5>
+                                <h3 class="text-primary" id="financial-health">-</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Charts -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Distribución de Gastos</h5>
+                                <canvas id="reportCategoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Estructura Financiera</h5>
+                                <canvas id="financialStructureChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debt Analysis -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Análisis de Deudas</h5>
+                                <canvas id="debtAnalysisChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Proyección de Pagos</h5>
+                                <canvas id="paymentProjectionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-lightbulb text-warning"></i> Recomendaciones para Mejorar tu Gestión Financiera
+                        </h5>
+                        <div id="recommendations-list">
+                            <p class="text-muted">Registra tus datos financieros para obtener recomendaciones personalizadas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modal-image" class="img-fluid" style="max-height: 500px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mi Perfil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="bi bi-person-circle" style="font-size: 4rem; color: var(--primary-color);"></i>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="profileName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="profileEmail" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Miembro desde</label>
+                        <input type="text" class="form-control" id="profileSince" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4kPz7Xq4XW6v8Y9Z0Q1R2S3T4U5V6W7X8",
+            authDomain: "control-financiero-familiar.firebaseapp.com",
+            projectId: "control-financiero-familiar",
+            storageBucket: "control-financiero-familiar.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456789"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Variables globales
+        let currentUser = null;
+        let incomeData = [];
+        let expenseData = [];
+        let savingsData = [];
+        let debtsData = [];
+        let financedData = [];
+        
+        let categoryChart, distributionChart, reportCategoryChart, financialStructureChart, debtAnalysisChart, paymentProjectionChart;
+
+        // Verificar estado de autenticación
+        auth.onAuthStateChanged(async (user) => {
+            showLoading(true);
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('authContainer').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('userName').textContent = user.displayName || user.email;
+                
+                // Cargar datos del usuario
+                await loadUserData();
+                updateDashboard();
+            } else {
+                currentUser = null;
+                document.getElementById('authContainer').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                
+                // Limpiar datos
+                incomeData = [];
+                expenseData = [];
+                savingsData = [];
+                debtsData = [];
+                financedData = [];
+            }
+            
+            showLoading(false);
+        });
+
+        // Funciones de autenticación
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                showLoading(true);
+                await auth.signInWithEmailAndPassword(email, password);
+                showNotification('Sesión iniciada correctamente', 'success');
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const password2 = document.getElementById('registerPassword2').value;
+            
+            if (password !== password2) {
+                showNotification('Las contraseñas no coinciden', 'error');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await userCredential.user.updateProfile({ displayName: name });
+                showNotification('Usuario registrado correctamente', 'success');
+                
+                // Limpiar formulario
+                document.getElementById('registerForm').reset();
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                showNotification('Sesión cerrada correctamente', 'success');
+            } catch (error) {
+                showNotification('Error al cerrar sesión', 'error');
+            }
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function showProfile() {
+            if (currentUser) {
+                document.getElementById('profileName').value = currentUser.displayName || '';
+                document.getElementById('profileEmail').value = currentUser.email;
+                document.getElementById('profileSince').value = new Date(currentUser.metadata.creationTime).toLocaleDateString('es-ES');
+                
+                const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
+                profileModal.show();
+            }
+            toggleUserDropdown();
+        }
+
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+
+        // Funciones de carga y guardado de datos
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            try {
+                // Cargar ingresos
+                const incomeSnapshot = await db.collection('users').doc(currentUser.uid).collection('income').get();
+                incomeData = incomeSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Cargar gastos
+                const expenseSnapshot = await db.collection('users').doc(currentUser.uid).collection('expenses').get();
+                expenseData = expenseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Cargar ahorros
+                const savingsSnapshot = await db.collection('users').doc(currentUser.uid).collection('savings').get();
+                savingsData = savingsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Cargar deudas
+                const debtsSnapshot = await db.collection('users').doc(currentUser.uid).collection('debts').get();
+                debtsData = debtsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Cargar gastos financiados
+                const financedSnapshot = await db.collection('users').doc(currentUser.uid).collection('financed').get();
+                financedData = financedSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+            } catch (error) {
+                showNotification('Error al cargar datos: ' + error.message, 'error');
+            }
+        }
+
+        async function saveIncomeData(income) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).collection('income').add(income);
+            } catch (error) {
+                showNotification('Error al guardar ingresos: ' + error.message, 'error');
+            }
+        }
+
+        async function saveExpenseData(expense) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).collection('expenses').add(expense);
+            } catch (error) {
+                showNotification('Error al guardar gastos: ' + error.message, 'error');
+            }
+        }
+
+        async function saveSavingsData(savings) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).collection('savings').add(savings);
+            } catch (error) {
+                showNotification('Error al guardar ahorros: ' + error.message, 'error');
+            }
+        }
+
+        async function saveDebtData(debt) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).collection('debts').add(debt);
+            } catch (error) {
+                showNotification('Error al guardar deudas: ' + error.message, 'error');
+            }
+        }
+
+        async function saveFinancedData(financed) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).collection('financed').add(financed);
+            } catch (error) {
+                showNotification('Error al guardar gastos financiados: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            setDefaultDates();
+        });
+
+        function initializeEventListeners() {
+            // Form submissions
+            document.getElementById('income-form').addEventListener('submit', handleIncomeSubmit);
+            document.getElementById('expense-form').addEventListener('submit', handleExpenseSubmit);
+            document.getElementById('savings-form').addEventListener('submit', handleSavingsSubmit);
+            document.getElementById('debt-form').addEventListener('submit', handleDebtSubmit);
+            document.getElementById('financed-form').addEventListener('submit', handleFinancedSubmit);
+
+            // File upload
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('ticket-image');
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('drop', handleDrop);
+            fileInput.addEventListener('change', handleFileSelect);
+        }
+
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expense-date').value = today;
+            document.getElementById('savings-date').value = today;
+            document.getElementById('debt-start').value = today;
+            document.getElementById('financed-date').value = today;
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show selected section
+            document.getElementById(sectionName + '-section').style.display = 'block';
+
+            // Update active nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.closest('.nav-link').classList.add('active');
+
+            // Update section-specific content
+            switch(sectionName) {
+                case 'dashboard':
+                    updateDashboard();
+                    break;
+                case 'income':
+                    updateIncomeList();
+                    break;
+                case 'expenses':
+                    updateCategorySummary();
+                    break;
+                case 'savings':
+                    updateSavingsList();
+                    break;
+                case 'debts':
+                    updateDebtsList();
+                    break;
+                case 'financed':
+                    updateFinancedList();
+                    break;
+                case 'report':
+                    generateReport();
+                    break;
+            }
+        }
+
+        async function handleIncomeSubmit(e) {
+            e.preventDefault();
+            
+            const income = {
+                amount: parseFloat(document.getElementById('income-amount').value),
+                source: document.getElementById('income-source').value,
+                month: document.getElementById('income-month').value,
+                date: new Date().toISOString(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await saveIncomeData(income);
+            
+            e.target.reset();
+            showNotification('Ingresos guardados correctamente', 'success');
+            await loadUserData();
+            updateIncomeList();
+            updateDashboard();
+        }
+
+        async function handleExpenseSubmit(e) {
+            e.preventDefault();
+            
+            const expense = {
+                amount: parseFloat(document.getElementById('expense-amount').value),
+                category: document.getElementById('expense-category').value,
+                description: document.getElementById('expense-description').value,
+                date: document.getElementById('expense-date').value,
+                image: document.getElementById('image-preview').querySelector('img')?.src || null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await saveExpenseData(expense);
+
+            e.target.reset();
+            document.getElementById('image-preview').innerHTML = '';
+            setDefaultDates();
+            
+            showNotification('Gasto registrado correctamente', 'success');
+            await loadUserData();
+            updateCategorySummary();
+            updateDashboard();
+        }
+
+        async function handleSavingsSubmit(e) {
+            e.preventDefault();
+            
+            const savings = {
+                amount: parseFloat(document.getElementById('savings-amount').value),
+                description: document.getElementById('savings-description').value,
+                type: document.getElementById('savings-type').value,
+                date: document.getElementById('savings-date').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await saveSavingsData(savings);
+
+            e.target.reset();
+            setDefaultDates();
+            
+            showNotification('Ahorro registrado correctamente', 'success');
+            await loadUserData();
+            updateSavingsList();
+            updateDashboard();
+        }
+
+        async function handleDebtSubmit(e) {
+            e.preventDefault();
+            
+            const debt = {
+                amount: parseFloat(document.getElementById('debt-amount').value),
+                monthlyPayment: parseFloat(document.getElementById('debt-monthly').value),
+                description: document.getElementById('debt-description').value,
+                creditor: document.getElementById('debt-creditor').value,
+                startDate: document.getElementById('debt-start').value,
+                endDate: document.getElementById('debt-end').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await saveDebtData(debt);
+
+            e.target.reset();
+            setDefaultDates();
+            
+            showNotification('Deuda registrada correctamente', 'success');
+            await loadUserData();
+            updateDebtsList();
+            updateDashboard();
+        }
+
+        async function handleFinancedSubmit(e) {
+            e.preventDefault();
+            
+            const financed = {
+                amount: parseFloat(document.getElementById('financed-amount').value),
+                monthlyPayment: parseFloat(document.getElementById('financed-monthly').value),
+                description: document.getElementById('financed-description').value,
+                card: document.getElementById('financed-card').value,
+                totalInstallments: parseInt(document.getElementById('financed-total').value),
+                currentInstallment: parseInt(document.getElementById('financed-current').value),
+                date: document.getElementById('financed-date').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await saveFinancedData(financed);
+
+            e.target.reset();
+            setDefaultDates();
+            
+            showNotification('Gasto financiado registrado correctamente', 'success');
+            await loadUserData();
+            updateFinancedList();
+            updateDashboard();
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('image-preview');
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" class="ticket-preview" onclick="showImageModal('${e.target.result}')">
+                        <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeImage()">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                showNotification('Por favor, selecciona una imagen válida', 'error');
+            }
+        }
+
+        function removeImage() {
+            document.getElementById('image-preview').innerHTML = '';
+            document.getElementById('ticket-image').value = '';
+        }
+
+        function showImageModal(src) {
+            document.getElementById('modal-image').src = src;
+            new bootstrap.Modal(document.getElementById('imageModal')).show();
+        }
+
+        function updateDashboard() {
+            // Calculate totals
+            const totalIncome = incomeData.reduce((sum, income) => sum + income.amount, 0);
+            const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+            const totalSavings = savingsData.reduce((sum, saving) => sum + saving.amount, 0);
+            const totalDebts = debtsData.reduce((sum, debt) => sum + debt.amount, 0);
+            const totalFinanced = financedData.reduce((sum, financed) => sum + financed.amount, 0);
+            
+            const monthlyDebtPayment = debtsData.reduce((sum, debt) => sum + debt.monthlyPayment, 0);
+            const monthlyFinancedPayment = financedData.reduce((sum, financed) => sum + financed.monthlyPayment, 0);
+            
+            const balance = totalIncome - totalExpenses;
+
+            // Update stats
+            document.getElementById('total-income').textContent = `€${totalIncome.toFixed(2)}`;
+            document.getElementById('total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
+            document.getElementById('balance').textContent = `€${balance.toFixed(2)}`;
+            document.getElementById('balance').style.color = balance >= 0 ? '#27ae60' : '#e74c3c';
+            document.getElementById('total-savings').textContent = `€${totalSavings.toFixed(2)}`;
+            document.getElementById('total-debts').textContent = `€${totalDebts.toFixed(2)}`;
+            document.getElementById('monthly-debt-payment').textContent = monthlyDebtPayment.toFixed(2);
+            document.getElementById('total-financed').textContent = `€${totalFinanced.toFixed(2)}`;
+            document.getElementById('monthly-financed-payment').textContent = monthlyFinancedPayment.toFixed(2);
+
+            // Update charts
+            updateCategoryChart();
+            updateDistributionChart();
+            updateRecentTransactions();
+        }
+
+        function updateCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            const categoryTotals = {};
+            expenseData.forEach(expense => {
+                if (!categoryTotals[expense.category]) {
+                    categoryTotals[expense.category] = 0;
+                }
+                categoryTotals[expense.category] += expense.amount;
+            });
+
+            const labels = Object.keys(categoryTotals);
+            const data = Object.values(categoryTotals);
+            const colors = [
+                '#3498db', '#e74c3c', '#f39c12', '#27ae60', 
+                '#9b59b6', '#1abc9c', '#34495e', '#e67e22', '#95a5a6'
+            ];
+
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.map(cat => getCategoryName(cat)),
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDistributionChart() {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            
+            const totalIncome = incomeData.reduce((sum, income) => sum + income.amount, 0);
+            const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+            const totalSavings = savingsData.reduce((sum, saving) => sum + saving.amount, 0);
+            const totalDebts = debtsData.reduce((sum, debt) => sum + debt.amount, 0);
+            const totalFinanced = financedData.reduce((sum, financed) => sum + financed.amount, 0);
+
+            if (distributionChart) {
+                distributionChart.destroy();
+            }
+
+            distributionChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Ingresos', 'Gastos', 'Ahorros', 'Deudas L/P', 'Gastos Financiados'],
+                    datasets: [{
+                        data: [totalIncome, totalExpenses, totalSavings, totalDebts, totalFinanced],
+                        backgroundColor: ['#27ae60', '#e74c3c', '#56ab2f', '#b92b27', '#fc4a1a'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRecentTransactions() {
+            // Combine all transactions
+            const allTransactions = [
+                ...incomeData.map(item => ({...item, type: 'income', date: new Date(item.date)})),
+                ...expenseData.map(item => ({...item, type: 'expense', date: new Date(item.date)})),
+                ...savingsData.map(item => ({...item, type: 'savings', date: new Date(item.date)})),
+                ...debtsData.map(item => ({...item, type: 'debt', date: new Date(item.startDate)})),
+                ...financedData.map(item => ({...item, type: 'financed', date: new Date(item.date)}))
+            ];
+
+            // Sort by date
+            allTransactions.sort((a, b) => b.date - a.date);
+
+            const container = document.getElementById('recent-transactions-list');
+            
+            if (allTransactions.length === 0) {
+                container.innerHTML = '<p class="text-muted">No hay transacciones registradas</p>';
+                return;
+            }
+
+            container.innerHTML = allTransactions.slice(0, 5).map(transaction => {
+                let icon, color, description;
+                
+                switch(transaction.type) {
+                    case 'income':
+                        icon = 'bi-arrow-up-circle';
+                        color = 'text-success';
+                        description = getIncomeSourceName(transaction.source);
+                        break;
+                    case 'expense':
+                        icon = 'bi-arrow-down-circle';
+                        color = 'text-danger';
+                        description = transaction.description;
+                        break;
+                    case 'savings':
+                        icon = 'bi-piggy-bank';
+                        color = 'text-info';
+                        description = transaction.description;
+                        break;
+                    case 'debt':
+                        icon = 'bi-file-earmark-text';
+                        color = 'text-warning';
+                        description = transaction.description;
+                        break;
+                    case 'financed':
+                        icon = 'bi-credit-card';
+                        color = 'text-primary';
+                        description = transaction.description;
+                        break;
+                }
+
+                return `
+                    <div class="expense-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="bi ${icon} ${color} me-3" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <h6 class="mb-1">${description}</h6>
+                                    <small class="text-muted">${formatDate(transaction.date.toISOString())}</small>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="mb-0 ${color}">${transaction.type === 'income' || transaction.type === 'savings' ? '+' : '-'}€${transaction.amount.toFixed(2)}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateIncomeList() {
+            const container = document.getElementById('income-list');
+            
+            if (incomeData.length === 0) {
+                container.innerHTML = '<p class="text-muted">No hay ingresos registrados</p>';
+                return;
+            }
+
+            container.innerHTML = incomeData.map(income => `
+                <div class="expense-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${getIncomeSourceName(income.source)}</h6>
+                            <small class="text-muted">${income.month} • ${formatDate(income.date)}</small>
+                        </div>
+                        <h5 class="mb-0 text-success">€${income.amount.toFixed(2)}</h5>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCategorySummary() {
+            const categoryTotals = {};
+            const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+
+            expenseData.forEach(expense => {
+                if (!categoryTotals[expense.category]) {
+                    categoryTotals[expense.category] = 0;
+                }
+                categoryTotals[expense.category] += expense.amount;
+            });
+
+            const container = document.getElementById('category-summary');
+            
+            if (Object.keys(categoryTotals).length === 0) {
+                container.innerHTML = '<p class="text-muted">No hay gastos registrados</p>';
+                return;
+            }
+
+            container.innerHTML = Object.entries(categoryTotals)
+                .sort((a, b) => b[1] - a[1])
+                .map(([category, amount]) => {
+                    const percentage = (amount / totalExpenses * 100).toFixed(1);
+                    return `
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>${getCategoryName(category)}</span>
+                                <span>€${amount.toFixed(2)} (${percentage}%)</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: ${percentage}%; background-color: ${getCategoryColor(category)}"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        function updateSavingsList() {
+            const container = document.getElementById('savings-list');
+            
+            if (savingsData.length === 0) {
+                container.innerHTML = '<p class="text-muted">No hay ahorros registrados</p>';
+                return;
+            }
+
+            const totalSavings = savingsData.reduce((sum, saving) => sum + saving.amount, 0);
+
+            container.innerHTML = savingsData.map(saving => {
+                const percentage = (saving.amount / totalSavings * 100).toFixed(1);
+                return `
+                    <div class="expense-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">${saving.description}</h6>
+                                <small class="text-muted">${getSavingsTypeName(saving.type)} • ${formatDate(saving.date)}</small>
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div class="progress-bar bg-success" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                            <h5 class="mb-0 text-success">€${saving.amount.toFixed(2)}</h5>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateDebtsList() {
+            const container = document.getElementById('debts-list');
+            
+            if (debtsData.length === 0) {
+                container.innerHTML = '<p class="text-muted">No hay deudas registradas</p>';
+                return;
+            }
+
+            container.innerHTML = debtsData.map(debt => {
+                const startDate = new Date(debt.startDate);
+                const endDate = new Date(debt.endDate);
+                const totalMonths = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24 * 30));
+                const elapsedMonths = Math.ceil((new Date() - startDate) / (1000 * 60 * 60 * 24 * 30));
+                const progress = Math.min((elapsedMonths / totalMonths * 100), 100);
+
+                return `
+                    <div class="expense-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${debt.description}</h6>
+                                <small class="text-muted">${debt.creditor} • Cuota: €${debt.monthlyPayment.toFixed(2)}/mes</small>
+                                <small class="text-muted d-block">${formatDate(debt.startDate)} - ${formatDate(debt.endDate)}</small>
+                                <div class="debt-progress">
+                                    <div class="progress-bar bg-warning" style="width: ${progress}%"></div>
+                                </div>
+                                <small class="text-muted">${progress.toFixed(0)}% completado</small>
+                            </div>
+                            <div class="text-end ms-3">
+                                <h5 class="mb-0 text-danger">€${debt.amount.toFixed(2)}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateFinancedList() {
+            const container = document.getElementById('financed-list');
+            
+            if (financedData.length === 0) {
+                container.innerHTML = '<p class="text-muted">No hay gastos financiados registrados</p>';
+                return;
+            }
+
+            container.innerHTML = financedData.map(financed => {
+                const progress = (financed.currentInstallment / financed.totalInstallments * 100).toFixed(0);
+                const remaining = financed.totalInstallments - financed.currentInstallment;
+
+                return `
+                    <div class="expense-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${financed.description}</h6>
+                                <small class="text-muted">${getCardName(financed.card)} • Cuota: €${financed.monthlyPayment.toFixed(2)}/mes</small>
+                                <div class="mt-2">
+                                    <span class="installment-badge">${financed.currentInstallment}/${financed.totalInstallments}</span>
+                                    <span class="text-muted ms-2">${remaining} cuotas restantes</span>
+                                </div>
+                                <div class="debt-progress">
+                                    <div class="progress-bar bg-info" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+                            <div class="text-end ms-3">
+                                <h5 class="mb-0 text-primary">€${financed.amount.toFixed(2)}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateReport() {
+            const totalIncome = incomeData.reduce((sum, income) => sum + income.amount, 0);
+            const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+            const totalSavings = savingsData.reduce((sum, saving) => sum + saving.amount, 0);
+            const totalDebts = debtsData.reduce((sum, debt) => sum + debt.amount, 0);
+            const totalFinanced = financedData.reduce((sum, financed) => sum + financed.amount, 0);
+            
+            const balance = totalIncome - totalExpenses;
+            const savingsRate = totalIncome > 0 ? (balance / totalIncome * 100).toFixed(1) : 0;
+            const debtRatio = totalIncome > 0 ? ((totalDebts + totalFinanced) / totalIncome * 100).toFixed(1) : 0;
+            const cardDebtRatio = totalIncome > 0 ? (totalFinanced / totalIncome * 100).toFixed(1) : 0;
+
+            // Update summary cards
+            document.getElementById('savings-rate').textContent = `${savingsRate}%`;
+            document.getElementById('savings-rate').style.color = savingsRate >= 20 ? '#27ae60' : savingsRate >= 10 ? '#f39c12' : '#e74c3c';
+
+            document.getElementById('debt-ratio').textContent = `${debtRatio}%`;
+            document.getElementById('debt-ratio').style.color = debtRatio <= 30 ? '#27ae60' : debtRatio <= 50 ? '#f39c12' : '#e74c3c';
+
+            document.getElementById('card-debt-ratio').textContent = `${cardDebtRatio}%`;
+            document.getElementById('card-debt-ratio').style.color = cardDebtRatio <= 10 ? '#27ae60' : cardDebtRatio <= 20 ? '#f39c12' : '#e74c3c';
+
+            // Calculate financial health
+            let healthStatus, healthColor;
+            if (savingsRate >= 20 && debtRatio <= 30) {
+                healthStatus = 'Excelente';
+                healthColor = '#27ae60';
+            } else if (savingsRate >= 10 && debtRatio <= 50) {
+                healthStatus = 'Buena';
+                healthColor = '#f39c12';
+            } else {
+                healthStatus = 'Necesita Mejora';
+                healthColor = '#e74c3c';
+            }
+            document.getElementById('financial-health').textContent = healthStatus;
+            document.getElementById('financial-health').style.color = healthColor;
+
+            // Update charts
+            updateReportCharts();
+            generateRecommendations();
+        }
+
+        function updateReportCharts() {
+            // Category distribution chart
+            const ctx1 = document.getElementById('reportCategoryChart').getContext('2d');
+            const categoryTotals = {};
+            expenseData.forEach(expense => {
+                if (!categoryTotals[expense.category]) {
+                    categoryTotals[expense.category] = 0;
+                }
+                categoryTotals[expense.category] += expense.amount;
+            });
+
+            if (reportCategoryChart) {
+                reportCategoryChart.destroy();
+            }
+
+            reportCategoryChart = new Chart(ctx1, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoryTotals).map(cat => getCategoryName(cat)),
+                    datasets: [{
+                        data: Object.values(categoryTotals),
+                        backgroundColor: [
+                            '#3498db', '#e74c3c', '#f39c12', '#27ae60', 
+                            '#9b59b6', '#1abc9c', '#34495e', '#e67e22', '#95a5a6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Financial structure chart
+            const ctx2 = document.getElementById('financialStructureChart').getContext('2d');
+            const totalIncome = incomeData.reduce((sum, income) => sum + income.amount, 0);
+            const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+            const totalSavings = savingsData.reduce((sum, saving) => sum + saving.amount, 0);
+            const totalDebts = debtsData.reduce((sum, debt) => sum + debt.amount, 0);
+            const totalFinanced = financedData.reduce((sum, financed) => sum + financed.amount, 0);
+
+            if (financialStructureChart) {
+                financialStructureChart.destroy();
+            }
+
+            financialStructureChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Activos', 'Pasivos'],
+                    datasets: [{
+                        label: 'Monto (€)',
+                        data: [
+                            totalIncome + totalSavings,
+                            totalDebts + totalFinanced
+                        ],
+                        backgroundColor: ['#27ae60', '#e74c3c'],
+                        borderWidth: 0,
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Debt analysis chart
+            const ctx3 = document.getElementById('debtAnalysisChart').getContext('2d');
+            
+            if (debtAnalysisChart) {
+                debtAnalysisChart.destroy();
+            }
+
+            debtAnalysisChart = new Chart(ctx3, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Deudas Largo Plazo', 'Gastos Financiados'],
+                    datasets: [{
+                        data: [totalDebts, totalFinanced],
+                        backgroundColor: ['#b92b27', '#fc4a1a'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Payment projection chart
+            const ctx4 = document.getElementById('paymentProjectionChart').getContext('2d');
+            
+            // Calculate monthly payments for next 12 months
+            const monthlyDebtPayment = debtsData.reduce((sum, debt) => sum + debt.monthlyPayment, 0);
+            const monthlyFinancedPayment = financedData.reduce((sum, financed) => sum + financed.monthlyPayment, 0);
+            
+            const months = [];
+            const debtPayments = [];
+            const financedPayments = [];
+            
+            for (let i = 1; i <= 12; i++) {
+                const date = new Date();
+                date.setMonth(date.getMonth() + i);
+                months.push(date.toLocaleDateString('es-ES', { month: 'short' }));
+                debtPayments.push(monthlyDebtPayment);
+                financedPayments.push(monthlyFinancedPayment);
+            }
+
+            if (paymentProjectionChart) {
+                paymentProjectionChart.destroy();
+            }
+
+            paymentProjectionChart = new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Deudas Largo Plazo',
+                        data: debtPayments,
+                        borderColor: '#b92b27',
+                        backgroundColor: 'rgba(185, 43, 39, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Gastos Financiados',
+                        data: financedPayments,
+                        borderColor: '#fc4a1a',
+                        backgroundColor: 'rgba(252, 74, 26, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '€' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateRecommendations() {
+            const totalIncome = incomeData.reduce((sum, income) => sum + income.amount, 0);
+            const totalExpenses = expenseData.reduce((sum, expense) => sum + expense.amount, 0);
+            const totalSavings = savingsData.reduce((sum, saving) => sum + saving.amount, 0);
+            const totalDebts = debtsData.reduce((sum, debt) => sum + debt.amount, 0);
+            const totalFinanced = financedData.reduce((sum, financed) => sum + financed.amount, 0);
+            
+            const balance = totalIncome - totalExpenses;
+            const savingsRate = totalIncome > 0 ? (balance / totalIncome * 100) : 0;
+            const debtRatio = totalIncome > 0 ? ((totalDebts + totalFinanced) / totalIncome * 100) : 0;
+            const cardDebtRatio = totalIncome > 0 ? (totalFinanced / totalIncome * 100) : 0;
+
+            const recommendations = [];
+
+            // Savings recommendations
+            if (savingsRate < 10) {
+                recommendations.push({
+                    type: 'warning',
+                    title: 'Aumenta tu tasa de ahorro',
+                    text: 'Tu tasa de ahorro es inferior al 10%. Intenta destinar al menos el 20% de tus ingresos al ahorro para alcanzar tus metas financieras.'
+                });
+            } else if (savingsRate < 20) {
+                recommendations.push({
+                    type: 'info',
+                    title: 'Buen progreso en ahorros',
+                    text: 'Estás ahorrando más del 10%. Considera diversificar tus ahorros en diferentes instrumentos para mejores rendimientos.'
+                });
+            }
+
+            // Debt recommendations
+            if (debtRatio > 50) {
+                recommendations.push({
+                    type: 'danger',
+                    title: 'Nivel de endeudamiento alto',
+                    text: 'Tu ratio de deuda supera el 50% de tus ingresos. Prioriza el pago de deudas y evita adquirir nuevas obligaciones.'
+                });
+            } else if (debtRatio > 30) {
+                recommendations.push({
+                    type: 'warning',
+                    title: 'Nivel de endeudamiento moderado',
+                    text: 'Tu ratio de deuda está entre 30-50%. Considera acelerar el pago de deudas para mejorar tu salud financiera.'
+                });
+            }
+
+            // Credit card recommendations
+            if (cardDebtRatio > 20) {
+                recommendations.push({
+                    type: 'danger',
+                    title: 'Uso excesivo de tarjeta',
+                    text: 'Tus gastos financiados con tarjeta superan el 20% de tus ingresos. Evita financiar compras y paga el total cada mes.'
+                });
+            } else if (cardDebtRatio > 10) {
+                recommendations.push({
+                    type: 'warning',
+                    title: 'Controla el uso de tarjeta',
+                    text: 'Tus gastos financiados están entre 10-20%. Intenta reducir esta proporción para evitar intereses altos.'
+                });
+            }
+
+            // Emergency fund recommendation
+            const emergencyFund = totalSavings;
+            const monthlyExpenses = totalExpenses;
+            const monthsCovered = emergencyFund / monthlyExpenses;
+
+            if (monthsCovered < 3) {
+                recommendations.push({
+                    type: 'info',
+                    title: 'Fondo de emergencia insuficiente',
+                    text: `Tu fondo de emergencia cubre solo ${monthsCovered.toFixed(1)} meses de gastos. Apunta a tener 3-6 meses de gastos ahorrados.`
+                });
+            }
+
+            // Debt management recommendations
+            if (debtsData.length > 0) {
+                const highInterestDebts = debtsData.filter(debt => {
+                    // Simplified: assume debts over 10% annual rate
+                    return debt.monthlyPayment * 12 / debt.amount > 0.1;
+                });
+
+                if (highInterestDebts.length > 0) {
+                    recommendations.push({
+                        type: 'warning',
+                        title: 'Deudas con alto interés',
+                        text: 'Tienes deudas que probablemente tienen altos intereses. Considera refinanciarlas o pagarlas primero.'
+                    });
+                }
+            }
+
+            // General recommendations
+            if (recommendations.length === 0) {
+                recommendations.push({
+                    type: 'success',
+                    title: '¡Excelente gestión financiera!',
+                    text: 'Tus finanzas están en muy buen estado. Continúa con tus buenos hábitos y considera aumentar tus inversiones.'
+                });
+            }
+
+            recommendations.push({
+                type: 'info',
+                title: 'Revisa tus finanzas mensualmente',
+                text: 'Mantén el hábito de revisar tus ingresos, gastos y deudas cada mes para tomar decisiones informadas.'
+            });
+
+            // Display recommendations
+            const container = document.getElementById('recommendations-list');
+            container.innerHTML = recommendations.map(rec => `
+                <div class="recommendation-card">
+                    <h6 class="${rec.type === 'danger' ? 'text-danger' : rec.type === 'warning' ? 'text-warning' : rec.type === 'success' ? 'text-success' : 'text-info'}">
+                        <i class="bi bi-${rec.type === 'danger' ? 'exclamation-circle' : rec.type === 'warning' ? 'exclamation-triangle' : rec.type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                        ${rec.title}
+                    </h6>
+                    <p class="mb-0">${rec.text}</p>
+                </div>
+            `).join('');
+        }
+
+        // PDF Download Function
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const reportSection = document.getElementById('report-section');
+            
+            // Show loading notification
+            showNotification('Generando PDF, por favor espere...', 'info');
+            
+            // Hide the download button temporarily
+            const downloadBtn = document.querySelector('.btn-pdf');
+            downloadBtn.style.display = 'none';
+            
+            // Options for html2canvas
+            const options = {
+                scale: 2, // Higher quality
+                useCORS: true,
+                logging: false,
+                width: reportSection.scrollWidth,
+                height: reportSection.scrollHeight,
+                windowWidth: reportSection.scrollWidth,
+                windowHeight: reportSection.scrollHeight
+            };
+
+            html2canvas(reportSection, options).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 295; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                // Add title page
+                pdf.setFontSize(20);
+                pdf.text('Informe Financiero Familiar', 105, 30, { align: 'center' });
+                pdf.setFontSize(12);
+                pdf.text(`Usuario: ${currentUser.displayName || currentUser.email}`, 105, 40, { align: 'center' });
+                pdf.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 105, 50, { align: 'center' });
+                
+                // Add first page with content
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                // Add remaining pages if content is longer than one page
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                // Save the PDF
+                const fileName = `informe_financiero_${currentUser.email}_${new Date().toISOString().split('T')[0]}.pdf`;
+                pdf.save(fileName);
+                
+                // Show download button again
+                downloadBtn.style.display = 'block';
+                
+                // Show success notification
+                showNotification('PDF descargado correctamente', 'success');
+            }).catch(error => {
+                console.error('Error generating PDF:', error);
+                showNotification('Error al generar el PDF', 'error');
+                downloadBtn.style.display = 'block';
+            });
+        }
+
+        // Utility functions
+        function getCategoryName(category) {
+            const names = {
+                'alimentacion': 'Alimentación',
+                'transporte': 'Transporte',
+                'vivienda': 'Vivienda',
+                'servicios': 'Servicios',
+                'salud': 'Salud',
+                'educacion': 'Educación',
+                'ocio': 'Ocio y Entretenimiento',
+                'ropa': 'Ropa y Calzado',
+                'otros': 'Otros'
+            };
+            return names[category] || category;
+        }
+
+        function getIncomeSourceName(source) {
+            const names = {
+                'salario': 'Salario',
+                'negocio': 'Negocio Propio',
+                'inversiones': 'Inversiones',
+                'alquiler': 'Alquiler',
+                'otros': 'Otros'
+            };
+            return names[source] || source;
+        }
+
+        function getSavingsTypeName(type) {
+            const names = {
+                'cuenta_ahorro': 'Cuenta de Ahorro',
+                'fondo_inversion': 'Fondo de Inversión',
+                'plazo_fijo': 'Plazo Fijo',
+                'acciones': 'Acciones',
+                'criptomonedas': 'Criptomonedas',
+                'otros': 'Otros'
+            };
+            return names[type] || type;
+        }
+
+        function getCardName(card) {
+            const names = {
+                'visa': 'Visa',
+                'mastercard': 'Mastercard',
+                'amex': 'American Express',
+                'otra': 'Otra'
+            };
+            return names[card] || card;
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'alimentacion': '#3498db',
+                'transporte': '#e74c3c',
+                'vivienda': '#f39c12',
+                'servicios': '#27ae60',
+                'salud': '#9b59b6',
+                'educacion': '#1abc9c',
+                'ocio': '#34495e',
+                'ropa': '#e67e22',
+                'otros': '#95a5a6'
+            };
+            return colors[category] || '#95a5a6';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES');
+        }
+
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (show) {
+                spinner.classList.add('show');
+            } else {
+                spinner.classList.remove('show');
+            }
+        }
+
+        function showNotification(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+
+
+</body>
+</html>
